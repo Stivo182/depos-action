@@ -1,0 +1,28 @@
+name: Обновление зависимостей и создание PR
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+    inputs:
+      filter:
+        description: 'Фильтр пакетов'
+      target:
+        description: 'Тип версии'
+        default: 'latest'
+        type: choice
+        options:
+          - latest
+          - minor
+          - patch
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  deps-upgrade-pr:
+    uses: Stivo182/depos-action/.github/workflows/deps-upgrade-pr.yml@main
+    with:
+      filter: ${{ inputs.filter }}
+      target: ${{ inputs.target }}

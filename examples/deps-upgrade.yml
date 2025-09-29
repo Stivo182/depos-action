@@ -1,0 +1,36 @@
+name: Обновление зависимостей
+
+on:
+  workflow_dispatch:
+    inputs:
+      filter:
+        description: 'Фильтр пакетов'
+      target:
+        description: 'Тип версии'
+        default: 'latest'
+        type: choice
+        options:
+          - latest
+          - minor
+          - patch
+
+jobs:
+  deps-upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Актуализация
+        uses: actions/checkout@v5.0.0
+
+      - name: Установка OneScript
+        uses: otymko/setup-onescript@v1.5.1
+        with:
+          version: stable 
+
+      - name: Обновление пакета opm
+        run: opm install opm
+
+      - name: Обновление зависимостей
+        uses: Stivo182/depos-action/upgrade@main
+        with:
+          filter: ${{ inputs.filter }}
+          target: ${{ inputs.target }}

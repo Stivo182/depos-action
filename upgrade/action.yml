@@ -1,0 +1,51 @@
+name: 'Depos Upgrade'
+description: 'Обновляет версии зависимостей в файле packagedef до указанных целевых версий.'
+
+inputs:
+  packagedef:
+    description: 'Путь к файлу packagedef или его каталогу.'
+    required: false
+  filter:
+    description: 'Фильтр пакетов по именам (через запятую или пробел), шаблону (*, ?) или регулярному выражению.'
+    required: false
+  target:
+    description: 'Тип целевой версии: latest, minor или patch.'
+    required: false
+    default: 'latest'
+  output:
+    description: 'Экспорт отчета об обновлениях в JSON-файл.'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Установка пакета depos
+      shell: bash
+      run: opm install depos
+
+    - name: Обновление зависимостей
+      shell: bash
+      run: |
+        command="depos upgrade"
+        
+        # packagedef
+        if [ -n "${{ inputs.packagedef }}" ]; then
+          command="$command --packagedef ${{ inputs.packagedef }}"
+        fi
+        
+        # filter
+        if [ -n "${{ inputs.filter }}" ]; then
+          command="$command --filter '${{ inputs.filter }}'"
+        fi
+        
+        # target
+        if [ -n "${{ inputs.target }}" ]; then
+          command="$command --target ${{ inputs.target }}"
+        fi
+        
+        # output
+        if [ -n "${{ inputs.output }}" ]; then
+          command="$command --output '${{ inputs.output }}'"
+        fi
+
+        eval $command
