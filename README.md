@@ -20,7 +20,7 @@ Action выполняет команду [`depos upgrade`](https://github.com/St
 ### Пример использования
 
 ```yaml
-name: Обновление зависимостей без фиксации
+name: Обновление зависимостей
 
 jobs:
   deps-upgrade:
