@@ -23,6 +23,11 @@ runs:
     - name: Актуализация
       uses: actions/checkout@v5.0.0
 
+    - name: Установка свойств git
+      shell: bash
+      run: |
+        git config --global core.autocrlf true
+
     - name: Установка OneScript
       uses: otymko/setup-onescript@v1.5.1
       with:
