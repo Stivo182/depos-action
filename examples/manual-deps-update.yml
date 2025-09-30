@@ -14,10 +14,6 @@ on:
           - minor
           - patch
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   update-dependencies:
     runs-on: ubuntu-latest
@@ -27,4 +23,5 @@ jobs:
         with:
           filter: ${{ inputs.filter }}
           target: ${{ inputs.target }}
-          message-prefix: build(deps) 
+          message-prefix: build(deps)
+          token: ${{ secrets.PAT }}

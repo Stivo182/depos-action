@@ -43,10 +43,6 @@ on:
     - cron: '0 0 * * 1' # Каждый понедельник
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   update-dependencies:
     runs-on: ubuntu-latest
@@ -56,7 +52,8 @@ jobs:
         with:
           filter: autumn-* # Обновлять только пакеты autumn
           target: minor    # До минорных версий
-          message-prefix: build(deps) 
+          message-prefix: build(deps)
+          token: ${{ secrets.PAT }}
 ```
 
 Пример автоматически созданного Pull Request:
