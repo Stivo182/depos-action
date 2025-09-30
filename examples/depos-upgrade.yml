@@ -1,4 +1,4 @@
-name: Обновление зависимостей
+name: Обновление зависимостей без Pull Request
 
 on:
   workflow_dispatch:

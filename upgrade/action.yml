@@ -1,23 +1,23 @@
-name: 'Depos Upgrade'
-description: 'Обновляет версии зависимостей в файле packagedef до указанных целевых версий.'
+name: Depos Upgrade
+description: Обновляет версии зависимостей в файле packagedef до указанных целевых версий.
 
 inputs:
   packagedef:
-    description: 'Путь к файлу packagedef или его каталогу.'
+    description: Путь к файлу packagedef или его каталогу.
     required: false
   filter:
-    description: 'Фильтр пакетов по именам (через запятую или пробел), шаблону (*, ?) или регулярному выражению.'
+    description: Фильтр пакетов по именам (через запятую или пробел), шаблону (*, ?) или регулярному выражению.
     required: false
   target:
-    description: 'Тип целевой версии: latest, minor или patch.'
+    description: Тип целевой версии (latest, minor, patch).
     required: false
     default: 'latest'
   output:
-    description: 'Путь для сохранения JSON-отчёта об обновлениях.'
+    description: Путь для сохранения JSON-отчёта об обновлениях.
     required: false
 
 runs:
-  using: 'composite'
+  using: composite
   steps:
     - name: Проверка и установка opm
       shell: bash
