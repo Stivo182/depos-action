@@ -12,6 +12,10 @@ inputs:
   message-prefix:
     description: Префикс для сообщения коммита и заголовка Pull Request
     required: false
+  token:
+    description: Токен для создания Pull Request
+    required: false
+    default: ${{ github.token }}
 
 runs:
   using: 'composite'
@@ -81,9 +85,12 @@ runs:
       if: steps.check-changes.outputs.has_changes == 'true'
       uses: peter-evans/create-pull-request@v7
       with:
+        token: ${{ inputs.token }}
         title: ${{ steps.format-output.outputs.title }}
         commit-message: ${{ steps.format-output.outputs.title }}
         body: ${{ steps.format-output.outputs.body }}
+        committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+        author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
         add-paths: packagedef
         branch: depos/bump-deps/${{ inputs.target }}
         delete-branch: true
