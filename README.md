@@ -33,6 +33,9 @@ permissions:
   pull-requests: write
 ```
 
+> [!IMPORTANT]  
+> Встроенный `GITHUB_TOKEN` не активирует события `on: push` и `on: pull_request`. Для их обработки необходимо использовать **Personal Access Token**, указав его в параметре token.
+
 ### Пример использования
 
 ```yaml
