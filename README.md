@@ -34,7 +34,7 @@ permissions:
 ```
 
 > [!IMPORTANT]  
-> Встроенный GITHUB_TOKEN не запускает события on: push и on: pull_request в других workflows при создании коммитов или pull request'ов. Чтобы автоматически запускать эти события, необходимо использовать **Personal Access Token** и передать его в параметр `token`.
+> Встроенный `GITHUB_TOKEN` не запускает события `on: push` и `on: pull_request` в других workflows при создании коммитов или pull request'ов. Чтобы автоматически запускать эти события, необходимо использовать **Personal Access Token** и передать его в параметр `token`.
 
 ### Пример использования
 
