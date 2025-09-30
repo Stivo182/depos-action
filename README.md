@@ -96,3 +96,7 @@ jobs:
       target: minor    # До минорных версий
       message-prefix: build(deps)
 ```
+
+Пример Pull Request, автоматически созданного через workflow `deps-upgrade-pr`
+
+![Pull Request Example](examples/assets/pr-example.png)
