@@ -76,6 +76,6 @@ jobs:
           commit-message: ${{ steps.format-output.outputs.title }}
           body: ${{ steps.format-output.outputs.body }}
           add-paths: packagedef
-          branch: depos/update-dependencies/${{ inputs.target }}
+          branch: depos/bump-deps/${{ inputs.target }}
           delete-branch: true
           labels: dependencies
