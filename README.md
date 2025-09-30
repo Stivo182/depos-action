@@ -46,11 +46,8 @@ jobs:
       - name: Установка OneScript
         uses: otymko/setup-onescript@v1.5.1
         with:
-          version: stable 
-
-      - name: Обновление пакета opm
-        run: opm install opm
-
+          version: stable
+          
       - name: Обновление зависимостей
         uses: Stivo182/depos-action/upgrade@main
         with:
