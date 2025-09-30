@@ -27,7 +27,7 @@ jobs:
           version: stable 
 
       - name: Обновление зависимостей в packagedef
-        uses: Stivo182/depos-action/upgrade@main
+        uses: Stivo182/depos-action/upgrade@v1
         with:
           filter: ${{ inputs.filter }}
           target: ${{ inputs.target }}

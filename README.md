@@ -6,7 +6,7 @@ GitHub Action для обновления зависимостей пакето�
 
 ```yaml
 - name: Обновление зависимостей
-  uses: Stivo182/depos-action@main
+  uses: Stivo182/depos-action@v1
 ```
 
 ### Входные параметры
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Обновление зависимостей
-        uses: Stivo182/depos-action@main
+        uses: Stivo182/depos-action@v1
         with:
           filter: autumn-* # Обновлять только пакеты autumn
           target: minor    # До минорных версий
