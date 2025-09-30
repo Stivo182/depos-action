@@ -1,4 +1,4 @@
-name: Обновление зависимостей
+name: Обновление зависимостей без фиксации
 
 on:
   workflow_dispatch:
@@ -26,8 +26,14 @@ jobs:
         with:
           version: stable 
 
-      - name: Обновление зависимостей
+      - name: Обновление зависимостей в packagedef
         uses: Stivo182/depos-action/upgrade@main
         with:
           filter: ${{ inputs.filter }}
           target: ${{ inputs.target }}
+          output: report.json
+
+        # 1. Обновлен файл packagedef
+        # 2. Создан файл report.json с обновленными пакетами
+
+        # ...

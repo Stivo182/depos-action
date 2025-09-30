@@ -13,7 +13,7 @@ inputs:
     required: false
     default: 'latest'
   output:
-    description: 'Экспорт отчета об обновлениях в JSON-файл.'
+    description: 'Путь для сохранения JSON-отчёта об обновлениях.'
     required: false
 
 runs:
@@ -37,7 +37,7 @@ runs:
       shell: bash
       run: opm install depos
 
-    - name: Обновление зависимостей
+    - name: Обновление зависимостей в packagedef
       shell: bash
       run: |
         cmd=(depos upgrade)

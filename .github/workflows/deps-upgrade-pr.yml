@@ -32,7 +32,7 @@ jobs:
         with:
           version: stable 
 
-      - name: Обновление зависимостей
+      - name: Обновление зависимостей в packagedef
         uses: Stivo182/depos-action/upgrade@main
         with:
           filter: ${{ inputs.filter }}
@@ -65,7 +65,7 @@ jobs:
 
           # Body
           echo "body<<EOF" >> $GITHUB_OUTPUT
-          jq -r '.[] | "✔ **\(.packageName)** \(.minVersionBefore) → \(.minVersionAfter) ([repo](https://github.com/oscript-library/\(.packageName)), [hub](https://hub.oscript.io/package/\(.packageName)))"' packages.json >> $GITHUB_OUTPUT
+          jq -r '.[] | "- **\(.packageName)**: \(.minVersionBefore) → \(.minVersionAfter) \n([repo](https://github.com/oscript-library/\(.packageName)) · [hub](https://hub.oscript.io/package/\(.packageName)))"' packages.json >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Создание PR
