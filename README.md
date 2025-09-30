@@ -22,20 +22,6 @@ Action выполняет команду [`depos upgrade`](https://github.com/St
 ```yaml
 name: Обновление зависимостей без фиксации
 
-on:
-  workflow_dispatch:
-    inputs:
-      filter:
-        description: 'Фильтр пакетов'
-      target:
-        description: 'Тип версии'
-        default: 'latest'
-        type: choice
-        options:
-          - latest
-          - minor
-          - patch
-
 jobs:
   deps-upgrade:
     runs-on: ubuntu-latest
@@ -51,8 +37,8 @@ jobs:
       - name: Обновление зависимостей в packagedef
         uses: Stivo182/depos-action/upgrade@main
         with:
-          filter: ${{ inputs.filter }}
-          target: ${{ inputs.target }}
+          filter: autumn-* # Обновлять только пакеты autumn
+          target: minor    # До минорных версий
           output: report.json
 
         # 1. Обновлен файл packagedef
@@ -61,7 +47,7 @@ jobs:
         # ...
 ```
 
-## 🤖 Workflow: `deps-upgrade-pr`
+## 🤖 Workflow: `upgrade-pr`
 
 ### Описание
 
@@ -89,14 +75,14 @@ permissions:
   pull-requests: write
 
 jobs:
-  deps-upgrade-pr:
-    uses: Stivo182/depos-action/.github/workflows/deps-upgrade-pr.yml@main
+  depos-upgrade-pr:
+    uses: Stivo182/depos-action/.github/workflows/upgrade-pr.yml@main
     with:
       filter: autumn-* # Обновлять только пакеты autumn
       target: minor    # До минорных версий
       message-prefix: build(deps)
 ```
 
-Пример Pull Request, автоматически созданного через workflow `deps-upgrade-pr`
+Пример Pull Request, автоматически созданного через workflow `upgrade-pr`
 
 ![Pull Request Example](examples/assets/pr-example.png)

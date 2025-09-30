@@ -19,9 +19,9 @@ permissions:
   pull-requests: write
 
 jobs:
-  deps-upgrade-pr:
-    uses: Stivo182/depos-action/.github/workflows/deps-upgrade-pr.yml@main
+  depos-upgrade-pr:
+    uses: Stivo182/depos-action/.github/workflows/upgrade-pr.yml@main
     with:
       filter: ${{ inputs.filter }}
       target: ${{ inputs.target }}
-      message-prefix: build(deps) 
+      message-prefix: build(deps)

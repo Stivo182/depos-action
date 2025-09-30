@@ -21,7 +21,7 @@ permissions:
   pull-requests: write
   
 jobs:
-  deps-upgrade-pr:
+  depos-upgrade-pr:
     runs-on: ubuntu-latest
     steps:
       - name: Актуализация

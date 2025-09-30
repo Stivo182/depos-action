@@ -3,14 +3,15 @@ name: Ежедневное обновление зависимостей
 on:
   schedule:
     - cron: '0 8 * * *' # Ежедневно в 8:00 утра
+  workflow_dispatch:
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  deps-upgrade-pr:
-    uses: Stivo182/depos-action/.github/workflows/deps-upgrade-pr.yml@main
+  depos-upgrade-pr:
+    uses: Stivo182/depos-action/.github/workflows/upgrade-pr.yml@main
     with:
       filter: autumn-* # Обновлять только пакеты autumn
       target: minor    # До минорных версий
