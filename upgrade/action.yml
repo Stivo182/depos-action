@@ -1,5 +1,6 @@
 name: Depos Upgrade
 description: Обновляет версии зависимостей в файле packagedef до указанных целевых версий.
+author: Stivo182
 
 inputs:
   packagedef:

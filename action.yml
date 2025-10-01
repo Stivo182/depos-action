@@ -1,5 +1,6 @@
 name: Обновление зависимостей
 description: Обновляет зависимости в файле packagedef и создает Pull Request с изменениями
+author: Stivo182
 
 inputs:
   filter:
