@@ -95,7 +95,7 @@ runs:
         commit-message: ${{ steps.format-output.outputs.title }}
         body: ${{ steps.format-output.outputs.body }}
         committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-        author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+        author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
         add-paths: packagedef
         branch: depos/bump-deps/${{ inputs.target }}
         delete-branch: true
