@@ -1,5 +1,5 @@
-name: Depos Upgrade
-description: Обновляет версии зависимостей в файле packagedef до указанных целевых версий.
+name: 'Depos: Upgrade Сommand'
+description: 'Обновляет зависимости в файле packagedef'
 author: Stivo182
 
 inputs:
