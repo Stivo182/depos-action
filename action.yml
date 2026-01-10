@@ -21,6 +21,11 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Инициализация переменных
+      shell: bash
+      run: |
+        echo "DEPOS_BRANCH=depos/bump-deps/${{ inputs.target }}" >> $GITHUB_ENV
+
     - name: Актуализация
       uses: actions/checkout@v6.0.1
 
@@ -87,6 +92,24 @@ runs:
           echo "EOF"
         } >> $GITHUB_OUTPUT
 
+    - name: Закрытие ранее созданного PR (если изменений нет)
+      if: steps.check-changes.outputs.has_changes == 'false'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+      run: |
+        PR_NUMBER=$(gh pr list \
+          --head "${DEPOS_BRANCH}" \
+          --state open \
+          --json number \
+          --jq '.[0].number')
+
+        if [ -n "$PR_NUMBER" ]; then
+          gh pr close "$PR_NUMBER" \
+            --comment "Закрыт автоматически, так как обновления в packagedef отсутствуют или уже применены." \
+            --delete-branch
+        fi
+
     - name: Создание Pull Request
       if: steps.check-changes.outputs.has_changes == 'true'
       uses: peter-evans/create-pull-request@v8
@@ -98,6 +121,5 @@ runs:
         committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
         author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
         add-paths: packagedef
-        branch: depos/bump-deps/${{ inputs.target }}
-        delete-branch: true
+        branch: ${{ env.DEPOS_BRANCH }}
         labels: dependencies
