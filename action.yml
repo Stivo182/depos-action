@@ -98,12 +98,14 @@ runs:
       env:
         GH_TOKEN: ${{ inputs.token }}
       run: |
+        # Проверяем наличие открытого PR
         PR_NUMBER=$(gh pr list \
           --head "${DEPOS_BRANCH}" \
           --state open \
           --json number \
           --jq '.[0].number')
 
+        # Если PR существует, закрываем его и удаляем ветку
         if [ -n "$PR_NUMBER" ]; then
           gh pr close "$PR_NUMBER" \
             --comment "Закрыт автоматически, так как обновления в packagedef отсутствуют или уже применены." \
@@ -111,8 +113,9 @@ runs:
           exit 0
         fi
 
-        if git ls-remote --exit-code --heads origin "${DEPOS_BRANCH}" > /dev/null; then
-          git push origin --delete "${DEPOS_BRANCH}"
+        # Если PR не существует, но ветка есть - удаляем ветку
+        if gh api --silent "repos/${{ github.repository }}/branches/${DEPOS_BRANCH}" 2>/dev/null; then
+          gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/${DEPOS_BRANCH}"
         fi
 
     - name: Создание Pull Request
