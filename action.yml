@@ -27,7 +27,7 @@ runs:
         echo "DEPOS_BRANCH=depos/bump-deps/${{ inputs.target }}" >> $GITHUB_ENV
 
     - name: Актуализация
-      uses: actions/checkout@v6.0.1
+      uses: actions/checkout@v6.0.2
 
     - name: Установка свойств git
       shell: bash
