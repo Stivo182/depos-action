@@ -24,6 +24,7 @@ grep -A4 -F 'uses: actions/checkout@v6.0.1' "$action" | grep -F 'clean: false' >
 grep -F 'scripts/prepare.sh' "$action" >/dev/null
 grep -F 'scripts/format-pr.sh' "$action" >/dev/null
 grep -F 'scripts/resolve-packagedef.sh' "$action" >/dev/null
+grep -A3 -F 'message-prefix:' "$action" | grep -F 'default: build(deps)' >/dev/null
 # Выражение GitHub Actions проверяется как буквальный текст.
 # shellcheck disable=SC2016
 grep -F 'DEPOS_VERSION: ${{ inputs.depos-version }}' "$action" >/dev/null

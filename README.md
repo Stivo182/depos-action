@@ -33,7 +33,7 @@ jobs:
 | `target` | Тип целевой версии: `latest`, `minor` или `patch`. | `latest` |
 | `depos-version` | Версия `depos`, устанавливаемая через `opm`. | Версия из [`.depos-version`](.depos-version) |
 | `base` | Базовая ветка Pull Request. | Ветка по умолчанию репозитория |
-| `message-prefix` | Префикс сообщения коммита и заголовка Pull Request. | |
+| `message-prefix` | Префикс сообщения коммита и заголовка Pull Request. | `build(deps)` |
 | `branch` | Имя ветки Pull Request. | `depos/bump-deps/<target>` для основной ветки; для другой базы добавляется `/<base>` |
 | `labels` | Существующие в репозитории метки Pull Request, разделённые запятой или переводом строки. | |
 | `token` | Токен для создания и обновления Pull Request. | `GITHUB_TOKEN` |
@@ -68,7 +68,6 @@ jobs:
         with:
           filter: autumn-*
           target: minor
-          message-prefix: build(deps)
           token: ${{ secrets.PAT }}
 ```
 

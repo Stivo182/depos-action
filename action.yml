@@ -23,6 +23,7 @@ inputs:
   message-prefix:
     description: Префикс для сообщения коммита и заголовка Pull Request
     required: false
+    default: build(deps)
   branch:
     description: Имя ветки Pull Request. Для основной базы используется depos/bump-deps/<target>, для другой базы добавляется /<base>
     required: false
