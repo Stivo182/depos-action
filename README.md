@@ -8,6 +8,8 @@ GitHub Action для автоматического обновления зав�
 name: Обновление зависимостей
 
 on:
+  schedule:
+    - cron: '0 0 * * 1' # Каждый понедельник
   workflow_dispatch:
 
 permissions:
@@ -35,7 +37,7 @@ jobs:
 | `base` | Базовая ветка Pull Request. | Ветка по умолчанию репозитория |
 | `message-prefix` | Префикс сообщения коммита и заголовка Pull Request. | `build(deps)` |
 | `branch` | Имя ветки Pull Request. | `depos/bump-deps/<target>` для основной ветки; для другой базы добавляется `/<base>` |
-| `labels` | Существующие в репозитории метки Pull Request, разделённые запятой или переводом строки. | |
+| `labels` | Метки Pull Request, разделённые запятой или переводом строки. | `dependencies` |
 | `token` | Токен для создания и обновления Pull Request. | `GITHUB_TOKEN` |
 
 ## Настройка токена
@@ -66,7 +68,6 @@ jobs:
       - name: Обновление зависимостей
         uses: Stivo182/depos-action@v1
         with:
-          filter: autumn-*
           target: minor
           token: ${{ secrets.PAT }}
 ```
