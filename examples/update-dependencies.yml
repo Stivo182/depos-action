@@ -5,6 +5,9 @@ on:
     - cron: '0 0 * * 1' # Каждый понедельник
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   update-dependencies:
     # if: github.repository_owner == '<your-username>'

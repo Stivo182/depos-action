@@ -1,4 +1,4 @@
-name: 'Depos: Upgrade Сommand'
+name: 'Depos: команда обновления зависимостей'
 description: 'Обновляет зависимости в файле packagedef'
 author: Stivo182
 
@@ -6,13 +6,17 @@ inputs:
   packagedef:
     description: Путь к файлу packagedef или его каталогу.
     required: false
+    default: packagedef
   filter:
     description: Фильтр пакетов по именам (через запятую или пробел), шаблону (*, ?) или регулярному выражению.
     required: false
   target:
     description: Тип целевой версии (latest, minor, patch).
     required: false
-    default: 'latest'
+    default: latest
+  depos-version:
+    description: Версия depos для установки через opm. Если не указана, используется закреплённая версия Action.
+    required: false
   output:
     description: Путь для сохранения JSON-отчёта об обновлениях.
     required: false
@@ -20,43 +24,24 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Проверка и установка opm
-      shell: bash
-      env:
-        MIN_OPM_VERSION: 1.3.0
-      run: |
-        if command -v opm >/dev/null 2>&1; then
-          v=$(opm -v | grep -oP '\d+\.\d+\.\d+')
-          if [[ "$(printf '%s\n' "$v" "$MIN_OPM_VERSION" | sort -V | head -n1)" != "$MIN_OPM_VERSION" ]]; then
-            opm install opm
-          fi
-        else
-          opm install opm
-        fi
-
-    - name: Установка пакета depos
-      shell: bash
-      run: opm install depos
+    - name: Установка OneScript
+      uses: otymko/setup-onescript@v1.5.1
+      with:
+        version: stable
 
     - name: Обновление зависимостей в packagedef
       shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        PACKAGEDEF: ${{ inputs.packagedef }}
+        FILTER: ${{ inputs.filter }}
+        TARGET: ${{ inputs.target }}
+        DEPOS_VERSION: ${{ inputs.depos-version }}
+        OUTPUT: ${{ inputs.output }}
       run: |
-        cmd=(depos upgrade)
-
-        if [ -n "${{ inputs.packagedef }}" ]; then
-          cmd+=("--packagedef" "${{ inputs.packagedef }}")
+        set -euo pipefail
+        action_path="$ACTION_PATH"
+        if [[ "${RUNNER_OS:-}" == "Windows" ]]; then
+          action_path="$(cygpath -u "$action_path")"
         fi
-
-        if [ -n "${{ inputs.filter }}" ]; then
-          cmd+=("--filter" "${{ inputs.filter }}")
-        fi
-
-        if [ -n "${{ inputs.target }}" ]; then
-          cmd+=("--target" "${{ inputs.target }}")
-        fi
-
-        if [ -n "${{ inputs.output }}" ]; then
-          cmd+=("--output" "${{ inputs.output }}")
-        fi
-
-        "${cmd[@]}"
+        bash "$action_path/../scripts/upgrade.sh"

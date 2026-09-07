@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+printf '%s\n' "$*" >> "$GH_CALL_LOG"
+
+case "${1:-} ${2:-}" in
+  "pr list")
+    if [[ -n "${GH_PR_JSON:-}" ]]; then
+      jq -r "${!#}" <<< "$GH_PR_JSON"
+    elif [[ -n "${GH_MANAGED_PR_NUMBER:-}" ]]; then
+      printf 'managed:%s\n' "$GH_MANAGED_PR_NUMBER"
+    elif [[ -n "${GH_DEFAULT_PR_NUMBER:-}" ]]; then
+      printf 'unmanaged\n'
+    fi
+    ;;
+  "pr close")
+    exit "${GH_PR_CLOSE_EXIT:-0}"
+    ;;
+  "api -X")
+    exit "${GH_DELETE_EXIT:-0}"
+    ;;
+  "api repos/"*)
+    if [[ "${GH_REF_LIST_FAIL:-false}" == "true" ]]; then
+      exit 7
+    fi
+    if [[ "${GH_REF_EXISTS:-false}" == "true" ]]; then
+      branch="${2#*/git/matching-refs/heads/}"
+      printf 'refs/heads/%s\n' "$branch"
+    fi
+    ;;
+  *)
+    echo "Unexpected gh invocation: $*" >&2
+    exit 64
+    ;;
+esac
