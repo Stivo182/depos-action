@@ -1,0 +1,28 @@
+name: Команда запуска E2E
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  dispatch:
+    if: github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Отправка команды тестирования
+        uses: peter-evans/slash-command-dispatch@9bdcd7914ec1b75590b790b844aa3b8eee7c683a # v5.0.2
+        with:
+          token: ${{ secrets.E2E_DISPATCH_TOKEN }}
+          reaction-token: ${{ github.token }}
+          config: >
+            [
+              {
+                "command": "test",
+                "permission": "admin",
+                "repository": "Stivo182/depos-action-e2e"
+              }
+            ]

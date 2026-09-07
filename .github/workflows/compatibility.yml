@@ -1,0 +1,87 @@
+name: Проверка совместимости
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-checks:
+    name: Статические проверки
+    runs-on: ubuntu-latest
+    steps:
+      - name: Получение исходников
+        uses: actions/checkout@v6.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Проверка workflow
+        uses: docker://rhysd/actionlint:1.7.12
+        with:
+          args: -color
+
+      - name: Проверка shell-скриптов
+        shell: bash
+        run: shellcheck scripts/*.sh tests/*.sh tests/fakes/*
+
+      - name: Запуск поведенческих тестов
+        shell: bash
+        run: bash tests/run.sh
+
+      - name: Проверка пробельных символов
+        shell: bash
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$BASE_REF" ]]; then
+            git diff --check "origin/${BASE_REF}...HEAD"
+          else
+            git diff --check HEAD^ HEAD
+          fi
+
+  hosted-runners:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+
+    steps:
+      - name: Получение исходников
+        uses: actions/checkout@v6.0.1
+
+      - name: Проверка shell-скриптов
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n scripts/upgrade.sh
+          bash -n scripts/cleanup-pr.sh
+
+      - name: Запуск команды обновления
+        uses: ./upgrade
+        with:
+          packagedef: tests/fixtures/packagedef
+          target: latest
+          output: ${{ runner.temp }}/depos-report.json
+
+      - name: Проверка результата обновления
+        shell: bash
+        env:
+          REPORT: ${{ runner.temp }}/depos-report.json
+        run: |
+          set -euo pipefail
+          jq -e 'type == "array" and length > 0' "$REPORT" >/dev/null
+          if git diff --quiet -- tests/fixtures/packagedef; then
+            echo "Файл packagedef не был обновлён" >&2
+            exit 1
+          fi
