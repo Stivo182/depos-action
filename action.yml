@@ -28,8 +28,9 @@ inputs:
     description: Имя ветки Pull Request. Для основной базы используется depos/bump-deps/<target>, для другой базы добавляется /<base>
     required: false
   labels:
-    description: Метки Pull Request, разделённые запятой или переводом строки. Метки должны существовать в репозитории
+    description: Метки Pull Request, разделённые запятой или переводом строки
     required: false
+    default: dependencies
   token:
     description: Токен для создания и обновления Pull Request
     required: false
