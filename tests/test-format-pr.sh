@@ -29,10 +29,14 @@ run_format "$case_dir/report.json" 'build(deps)'
 grep -E '^title<<depos_[[:alnum:]_]+$' "$case_dir/github-output" >/dev/null
 grep -Fx 'build(deps): Bump semver 1.0.0 → 1.1.0, autumn 3.0.0 → 3.1.0 and 1 more package' "$case_dir/github-output" >/dev/null
 grep -F '<!-- depos-action: managed pull request -->' "$case_dir/github-output" >/dev/null
-grep -F '| Package | From | To | Update | Links |' "$case_dir/github-output" >/dev/null
-grep -F '| [oint](https://github.com/oscript-library/oint) | `1.0.0` | `2.0.0` | ⚠️ major |' "$case_dir/github-output" >/dev/null
+grep -F '| Dependency | Update | Type | Links |' "$case_dir/github-output" >/dev/null
+# Markdown-разметка проверяется как буквальный текст.
+# shellcheck disable=SC2016
+grep -F '| [oint](https://github.com/oscript-library/oint) | `1.0.0` → `2.0.0` | ⚠️ major |' "$case_dir/github-output" >/dev/null
 grep -F '[Hub](https://hub.oscript.io/package/semver)' "$case_dir/github-output" >/dev/null
-grep -F '<sub>Created automatically by depos-action · file `packagedef`</sub>' "$case_dir/github-output" >/dev/null
+# HTML-разметка проверяется как буквальный текст.
+# shellcheck disable=SC2016
+grep -F '<sub>Created automatically by [depos-action](https://github.com/Stivo182/depos-action) · file _packagedef_</sub>' "$case_dir/github-output" >/dev/null
 if grep -F 'body<<EOF' "$case_dir/github-output" >/dev/null; then
   echo 'Для тела Pull Request используется фиксированный разделитель EOF' >&2
   exit 1

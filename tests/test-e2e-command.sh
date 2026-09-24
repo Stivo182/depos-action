@@ -25,15 +25,12 @@ if grep -F '"named_args": true' "$workflow" >/dev/null; then
 fi
 
 readme="$root_dir/README.md"
-grep -A30 -F '## Использование' "$readme" | grep -F 'permissions:' >/dev/null
-grep -A30 -F '## Использование' "$readme" | grep -F 'contents: write' >/dev/null
-grep -A30 -F '## Использование' "$readme" | grep -F 'pull-requests: write' >/dev/null
+grep -A30 -F '## Быстрый старт' "$readme" | grep -F 'permissions:' >/dev/null
+grep -A30 -F '## Быстрый старт' "$readme" | grep -F 'contents: write' >/dev/null
+grep -A30 -F '## Быстрый старт' "$readme" | grep -F 'pull-requests: write' >/dev/null
 grep -F 'Contents: Read and write' "$readme" >/dev/null
-grep -F 'Stivo182/depos-action-e2e' "$readme" >/dev/null
-grep -F 'Обработчик команды должен находиться в ветке по умолчанию' "$readme" >/dev/null
-grep -Fx '/test' "$readme" >/dev/null
-if grep -F '/test ref=' "$readme" >/dev/null; then
-  echo "Команда E2E всё ещё требует явно указывать ref" >&2
+if grep -F '## E2E-тестирование изменений' "$readme" >/dev/null; then
+  echo 'README содержит внутреннюю инструкцию по E2E-тестированию' >&2
   exit 1
 fi
 

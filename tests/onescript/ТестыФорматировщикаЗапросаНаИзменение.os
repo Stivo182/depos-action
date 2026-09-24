@@ -21,28 +21,78 @@
         "build(deps): Bump semver 1.0.0 → 1.0.1, autumn 3.0.0 → 3.1.0 and 1 more package",
         Результат.Заголовок
     );
+    ОжидаемыйПодвал = "<sub>Created automatically by [depos-action]"
+        + "(https://github.com/Stivo182/depos-action) · file _packagedef_</sub>";
     ОжидаемоеТело = СтрШаблон(
         "<!-- depos-action: managed pull request -->
         |
         |## 📦 Dependency updates
         |
-        |Updated packages: **3** · Strategy: **latest**
+        |Updated packages: **3** · Strategy: `latest`
         |
-        || Package | From | To | Update | Links |
-        ||---|---:|---:|:---:|---|
-        || [oint](%1) | `1.0.0` | `2.0.0` | ⚠️ major | [Hub](%2) · [Repo](%1) |
-        || [autumn](%3) | `3.0.0` | `3.1.0` | minor | [Hub](%4) · [Repo](%3) |
-        || [semver](%5) | `1.0.0` | `1.0.1` | patch | [Hub](%6) · [Repo](%5) |
+        || Dependency | Update | Type | Links |
+        ||---|:---:|:---:|---|
+        || [oint](%1) | `1.0.0` → `2.0.0` | ⚠️ major | [Hub](%2) |
+        || [autumn](%3) | `3.0.0` → `3.1.0` | minor | [Hub](%4) |
+        || [semver](%5) | `1.0.0` → `1.0.1` | patch | [Hub](%6) |
         |
-        |<sub>Created automatically by depos-action · file `packagedef`</sub>",
+        |%7",
         "https://github.com/oscript-library/oint",
         "https://hub.oscript.io/package/oint",
         "https://github.com/oscript-library/autumn",
         "https://hub.oscript.io/package/autumn",
         "https://github.com/oscript-library/semver",
-        "https://hub.oscript.io/package/semver"
+        "https://hub.oscript.io/package/semver",
+        ОжидаемыйПодвал
     );
     Утверждения.ПроверитьРавенство(ОжидаемоеТело, Результат.Тело);
+
+КонецПроцедуры
+
+&Тест
+Процедура ТестДолжен_НеДобавлятьПодробностиБезРелизовИКоммитов() Экспорт
+
+    // Подготовка
+    Пакет = Обновление("pkg", "1.0.0", "1.0.1", "patch");
+    Форматировщик = Новый ФорматировщикЗапросаНаИзменение;
+
+    // Действие
+    Результат = Форматировщик.Сформировать(МассивИз(Пакет), "", "packagedef", "latest");
+
+    // Проверка
+    Ожидаем.Что(Результат.Тело).Содержит(
+        "| [pkg](https://github.com/oscript-library/pkg) | `1.0.0` → `1.0.1` | patch |"
+    );
+    Ожидаем.Что(Результат.Тело).Не_().Содержит("<details>");
+    Ожидаем.Что(Результат.Тело).Не_().Содержит("<summary>Release notes</summary>");
+    Ожидаем.Что(Результат.Тело).Не_().Содержит("<summary>Commits</summary>");
+
+КонецПроцедуры
+
+&Тест
+Процедура ТестДолжен_СформироватьДоступныеСсылкиВТаблице() Экспорт
+
+    // Подготовка
+    Пакет = Обновление("autumn", "4.3.10", "4.3.11", "patch");
+    Пакет.Релизы.Добавить(Новый Структура(
+        "Название,Текст,URL",
+        "4.3.11",
+        "Release notes",
+        "https://github.com/oscript-library/autumn/releases/tag/v4.3.11"
+    ));
+    Пакет.URLСравнения = "https://github.com/oscript-library/autumn/compare/v4.3.10...v4.3.11";
+    Форматировщик = Новый ФорматировщикЗапросаНаИзменение;
+
+    // Действие
+    Результат = Форматировщик.Сформировать(МассивИз(Пакет), "", "packagedef", "latest");
+
+    // Проверка
+    Ожидаем.Что(Результат.Тело).Содержит(
+        "[Hub](https://hub.oscript.io/package/autumn)"
+            + " · [Releases](https://github.com/oscript-library/autumn/releases)"
+            + " · [Compare](https://github.com/oscript-library/autumn/compare/v4.3.10...v4.3.11)"
+    );
+    Ожидаем.Что(Результат.Тело).Не_().Содержит("[Repo](");
 
 КонецПроцедуры
 
@@ -67,7 +117,14 @@
     Результат = Форматировщик.Сформировать(МассивИз(Пакет), "", "packagedef", "latest");
 
     // Проверка
-    Ожидаем.Что(Результат.Тело).Содержит("<summary>Release notes</summary>");
+    Ожидаем.Что(Результат.Тело).Содержит(
+        "### autumn
+        |
+        |`4.3.10` → `4.3.11`
+        |
+        |<details>
+        |<summary>📋 Release notes</summary>"
+    );
     Ожидаем.Что(Результат.Тело).Содержит("> Строка 49");
     Ожидаем.Что(Результат.Тело).Не_().Содержит("> Строка 50");
     Ожидаем.Что(Результат.Тело).Содержит("... (truncated)");
@@ -95,10 +152,46 @@
     Результат = Форматировщик.Сформировать(МассивИз(Пакет), "", "packagedef", "latest");
 
     // Проверка
-    Ожидаем.Что(Результат.Тело).Содержит("<summary>Commits</summary>");
+    Ожидаем.Что(Результат.Тело).Содержит("<summary>🔨 Commits</summary>");
     Ожидаем.Что(Результат.Тело).Содержит("Commit number 11");
     Ожидаем.Что(Результат.Тело).Не_().Содержит("/commit/1234561abcdef)");
-    Ожидаем.Что(Результат.Тело).Содержит("Additional commits viewable in [compare view]");
+    СсылкаСравнения = "[View full comparison](https://github.com/oscript-library/autumn/compare/"
+        + "v4.3.10...v4.3.11)";
+    СсылкаНаОтдельнойСтроке = СтрНайти(
+        Результат.Тело,
+        Символы.ПС + СсылкаСравнения + Символы.ПС
+    ) > 0;
+    Ожидаем.Что(СсылкаНаОтдельнойСтроке).ЭтоИстина();
+    Ожидаем.Что(Результат.Тело).Не_().Содержит("Additional commits viewable in");
+    Ожидаем.Что(Результат.Тело).Не_().Содержит("See full diff in");
+
+КонецПроцедуры
+
+&Тест
+Процедура ТестДолжен_ПоказатьПолноеСравнениеДляОдногоКоммита() Экспорт
+
+    // Подготовка
+    Пакет = Обновление("autumn", "4.3.10", "4.3.11", "patch");
+    Пакет.URLСравнения = "https://github.com/oscript-library/autumn/compare/v4.3.10...v4.3.11";
+    Пакет.Коммиты.Добавить(Новый Структура(
+        "SHA,Сообщение,URL",
+        "1234567abcdef",
+        "Single commit",
+        "https://github.com/oscript-library/autumn/commit/1234567abcdef"
+    ));
+    Форматировщик = Новый ФорматировщикЗапросаНаИзменение;
+
+    // Действие
+    Результат = Форматировщик.Сформировать(МассивИз(Пакет), "", "packagedef", "latest");
+
+    // Проверка
+    СсылкаСравнения = "[View full comparison](https://github.com/oscript-library/autumn/compare/"
+        + "v4.3.10...v4.3.11)";
+    СсылкаНаОтдельнойСтроке = СтрНайти(
+        Результат.Тело,
+        Символы.ПС + СсылкаСравнения + Символы.ПС
+    ) > 0;
+    Ожидаем.Что(СсылкаНаОтдельнойСтроке).ЭтоИстина();
 
 КонецПроцедуры
 
@@ -199,7 +292,9 @@
     // Проверка
     Ожидаем.Что(СтрДлина(Результат.Тело) <= 60000).ЭтоИстина();
     Ожидаем.Что(Результат.Тело).Содержит("_Additional dependency rows were truncated._");
-    Ожидаем.Что(Результат.Тело).Содержит("<sub>Created automatically by depos-action");
+    Ожидаем.Что(Результат.Тело).Содержит(
+        "<sub>Created automatically by [depos-action](https://github.com/Stivo182/depos-action)"
+    );
 
 КонецПроцедуры
 
