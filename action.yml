@@ -89,6 +89,10 @@ runs:
               "([repo](https://github.com/oscript-library/\(.packageName)) · " +
               "[hub](https://hub.oscript.io/package/\(.packageName)))"
           ' packages.json
+          echo ""
+          echo "---"
+          echo ""
+          echo "<sub>Доступна новая версия **[depos-action@v2](https://github.com/Stivo182/depos-action)**. Обновите в workflow \`Stivo182/depos-action@v1\` → \`Stivo182/depos-action@v2\`.</sub>"
           echo "EOF"
         } >> $GITHUB_OUTPUT
 
