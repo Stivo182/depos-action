@@ -1,5 +1,7 @@
 # Depos Action
 
+[![E2E](https://github.com/Stivo182/depos-action-e2e/actions/workflows/e2e.yml/badge.svg)](https://github.com/Stivo182/depos-action-e2e/actions/workflows/e2e.yml)
+
 GitHub Action для автоматического обновления зависимостей OneScript в файле `packagedef` с помощью
 [`depos`](https://github.com/Stivo182/depos). Action обновляет `packagedef` и создаёт или актуализирует
 Pull Request с описанием изменений. Когда обновлений больше нет, управляемый Pull Request автоматически закрывается.
