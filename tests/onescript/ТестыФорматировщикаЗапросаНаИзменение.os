@@ -196,6 +196,73 @@
 КонецПроцедуры
 
 &Тест
+Процедура ТестДолжен_ДобавитьChangelogПослеReleaseNotes() Экспорт
+
+    // Подготовка
+    Пакет = Обновление("autumn", "4.3.10", "4.3.11", "patch");
+    Пакет.Релизы.Добавить(Новый Структура(
+        "Название,Текст,URL,Тег",
+        "4.3.11",
+        "Release notes",
+        "https://github.com/oscript-library/autumn/releases/tag/v4.3.11",
+        "v4.3.11"
+    ));
+    Пакет.Вставить("Ченджлог", "# Changelog");
+    Пакет.Коммиты.Добавить(Новый Структура(
+        "SHA,Сообщение,URL",
+        "1234567abcdef",
+        "Commit",
+        "https://github.com/oscript-library/autumn/commit/1234567abcdef"
+    ));
+    Форматировщик = Новый ФорматировщикЗапросаНаИзменение;
+
+    // Действие
+    Результат = Форматировщик.Сформировать(МассивИз(Пакет), "", "packagedef", "latest");
+
+    // Проверка
+    ОжидаемыйФрагмент = "<summary>📋 Release notes</summary>
+        |
+        |*Sourced from [autumn's releases](https://github.com/oscript-library/autumn/releases).*
+        |
+        |> ## [4.3.11](https://github.com/oscript-library/autumn/releases/tag/v4.3.11)
+        |> Release notes
+        |
+        |</details>
+        |
+        |<details>
+        |<summary>📝 Changelog</summary>
+        |
+        |> # Changelog
+        |
+        |</details>
+        |
+        |<details>
+        |<summary>🔨 Commits</summary>";
+    Ожидаем.Что(Результат.Тело).Содержит(ОжидаемыйФрагмент);
+
+КонецПроцедуры
+
+&Тест
+Процедура ТестДолжен_РазрешитьОтносительныеСсылкиChangelogПоЦелевомуТегу() Экспорт
+
+    // Подготовка
+    Пакет = Обновление("autumn", "4.3.10", "4.3.11", "patch");
+    Пакет.Вставить("ТегПосле", "v4.3.11");
+    Пакет.Вставить("Ченджлог", "[Изменения](docs/changelog.md)");
+
+    Форматировщик = Новый ФорматировщикЗапросаНаИзменение;
+
+    // Действие
+    Результат = Форматировщик.Сформировать(МассивИз(Пакет), "", "packagedef", "latest");
+
+    // Проверка
+    Ожидаем.Что(Результат.Тело).Содержит(
+        "](https://github.com/oscript-library/autumn/blob/v4.3.11/docs/changelog.md)"
+    );
+
+КонецПроцедуры
+
+&Тест
 Процедура ТестДолжен_УказыватьРепозиторийВСсылкахНаIssueИPullRequestКоммита() Экспорт
 
     // Подготовка
