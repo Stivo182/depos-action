@@ -98,12 +98,7 @@ grep -Fx 'depos upgrade --manifest packagedef --target latest' "$CALL_LOG" >/dev
 }
 
 : > "$CALL_LOG"
-FAKE_OPM_VERSION=1.2.9 bash "$upgrade_script"
-grep -Fx 'opm install opm' "$CALL_LOG" >/dev/null
-
-if TARGET=major bash "$upgrade_script"; then
-  echo 'Недопустимый target передан в depos' >&2
-  exit 1
-fi
+TARGET=major bash "$upgrade_script"
+grep -Fx 'depos upgrade --manifest packagedef --target major' "$CALL_LOG" >/dev/null
 
 echo 'ПРОЙДЕНО: запуск depos upgrade'

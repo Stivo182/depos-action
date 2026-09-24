@@ -40,8 +40,4 @@ runs:
         OUTPUT: ${{ inputs.output }}
       run: |
         set -euo pipefail
-        action_path="$ACTION_PATH"
-        if [[ "${RUNNER_OS:-}" == "Windows" ]]; then
-          action_path="$(cygpath -u "$action_path")"
-        fi
-        bash "$action_path/../scripts/upgrade.sh"
+        bash "$ACTION_PATH/../scripts/upgrade.sh"

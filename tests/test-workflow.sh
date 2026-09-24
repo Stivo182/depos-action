@@ -7,7 +7,7 @@ action="$root_dir/action.yml"
 upgrade_action="$root_dir/upgrade/action.yml"
 attributes="$root_dir/.gitattributes"
 gitignore="$root_dir/.gitignore"
-github_client="$root_dir/scripts/pr/Классы/КлиентGitHub.os"
+github_client="$root_dir/src/pr/Классы/КлиентGitHub.os"
 project_packagedef="$root_dir/packagedef"
 
 grep -Fx '.depos-version text eol=lf' "$attributes" >/dev/null || {
@@ -27,9 +27,8 @@ grep -F 'name: Проверка shell-скриптов' "$workflow" >/dev/null
 grep -A4 -F 'uses: actions/checkout@v6.0.1' "$action" | grep -F 'clean: false' >/dev/null
 grep -F 'scripts/prepare.sh' "$action" >/dev/null
 grep -F 'scripts/format-pr.os' "$action" >/dev/null
-grep -F '"$opm_command" install -l' "$action" >/dev/null
-grep -F 'resolve_command opm' "$action" >/dev/null
-grep -F 'cd "$action_path"' "$action" >/dev/null
+grep -F 'opm install -l' "$action" >/dev/null
+grep -F 'cd "$ACTION_PATH"' "$action" >/dev/null
 grep -F 'scripts/resolve-packagedef.sh' "$action" >/dev/null
 grep -A3 -F 'message-prefix:' "$action" | grep -F 'default: build(deps)' >/dev/null
 grep -A3 -F 'labels:' "$action" | grep -F 'default: dependencies' >/dev/null
