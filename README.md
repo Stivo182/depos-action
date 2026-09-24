@@ -142,3 +142,5 @@ Pull Request без служебного маркера `depos-action` авто�
 удалена, если соответствующего Pull Request больше нет.
 
 ## Пример Pull Request
+
+![Пример Pull Request, созданного depos-action](examples/assets/pr-example.png)
