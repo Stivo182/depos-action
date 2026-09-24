@@ -40,8 +40,8 @@ cat > "$case_dir/report.json" <<'JSON'
 JSON
 
 run_format "$case_dir/report.json" 'build(deps)'
-grep -E '^title<<depos_[[:alnum:]_]+$' "$case_dir/github-output" >/dev/null
-grep -Fx 'build(deps): Bump semver 1.0.0 → 1.1.0, autumn 3.0.0 → 3.1.0 and 1 more package' "$case_dir/github-output" >/dev/null
+grep -E $'^title<<depos_[[:alnum:]_]+\r?$' "$case_dir/github-output" >/dev/null
+grep -F 'build(deps): Bump semver 1.0.0 → 1.1.0, autumn 3.0.0 → 3.1.0 and 1 more package' "$case_dir/github-output" >/dev/null
 grep -F '<!-- depos-action: managed pull request -->' "$case_dir/github-output" >/dev/null
 grep -F '| Dependency | Update | Type | Links |' "$case_dir/github-output" >/dev/null
 # Markdown-разметка проверяется как буквальный текст.
