@@ -29,6 +29,18 @@ jobs:
         shell: bash
         run: shellcheck scripts/*.sh tests/*.sh tests/fakes/*
 
+      - name: Установка OneScript
+        uses: otymko/setup-onescript@v1.5.1
+        with:
+          version: stable
+
+      - name: Установка зависимостей тестов
+        shell: bash
+        run: |
+          opm install opm
+          opm install -l --dev
+          opm install oneunit
+
       - name: Запуск поведенческих тестов
         shell: bash
         run: bash tests/run.sh

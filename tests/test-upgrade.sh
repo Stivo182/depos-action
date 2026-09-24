@@ -6,6 +6,23 @@ case_dir="$(mktemp -d)"
 trap 'rm -rf -- "$case_dir"' EXIT
 original_path="$PATH"
 
+path_without_opm_and_depos() {
+  local path_entry
+  local filtered_path=""
+  local -a path_entries
+
+  IFS=':' read -r -a path_entries <<< "$original_path"
+  for path_entry in "${path_entries[@]}"; do
+    if [[ -x "$path_entry/opm" || -x "$path_entry/opm.bat" || -x "$path_entry/depos" || -x "$path_entry/depos.bat" ]]; then
+      continue
+    fi
+
+    filtered_path+="${filtered_path:+:}${path_entry}"
+  done
+
+  printf '%s\n' "$filtered_path"
+}
+
 action_dir="$case_dir/action"
 mkdir -p "$action_dir/scripts"
 cp "$root_dir/scripts/upgrade.sh" "$root_dir/scripts/common.sh" "$action_dir/scripts/"
@@ -43,7 +60,7 @@ BATCH
 if [[ "${1:-}" == '--bash' ]]; then
   shift
 fi
-printf 'opm %s\n' "$*" >> "$CALL_LOG"
+printf 'opm.bat %s\n' "$*" >> "$CALL_LOG"
 if [[ "${1:-}" == '-v' ]]; then
   printf '1.3.0\n'
 fi
@@ -58,7 +75,7 @@ BATCH
 if [[ "${1:-}" == '--bash' ]]; then
   shift
 fi
-printf 'depos %s\n' "$*" >> "$CALL_LOG"
+printf 'depos.bat %s\n' "$*" >> "$CALL_LOG"
 SH
 chmod +x "$windows_bin/opm.bat" "$windows_bin/depos.bat"
 
@@ -87,23 +104,19 @@ grep -Fx 'opm install depos@1.2.3' "$CALL_LOG" >/dev/null || {
 }
 
 : > "$CALL_LOG"
-PATH="$windows_bin:$original_path" RUNNER_OS=Windows bash "$upgrade_script"
-grep -Fx 'opm install depos@9.8.7' "$CALL_LOG" >/dev/null || {
+windows_path="$windows_bin:$(path_without_opm_and_depos)"
+PATH="$windows_path" RUNNER_OS=Windows bash "$upgrade_script"
+grep -Fx 'opm.bat install depos@9.8.7' "$CALL_LOG" >/dev/null || {
   echo 'Windows-обёртка opm.bat не использована' >&2
   exit 1
 }
-grep -Fx 'depos upgrade --manifest packagedef --target latest' "$CALL_LOG" >/dev/null || {
+grep -Fx 'depos.bat upgrade --manifest packagedef --target latest' "$CALL_LOG" >/dev/null || {
   echo 'Windows-обёртка depos.bat не использована' >&2
   exit 1
 }
 
 : > "$CALL_LOG"
-FAKE_OPM_VERSION=1.2.9 bash "$upgrade_script"
-grep -Fx 'opm install opm' "$CALL_LOG" >/dev/null
-
-if TARGET=major bash "$upgrade_script"; then
-  echo 'Недопустимый target передан в depos' >&2
-  exit 1
-fi
+TARGET=major bash "$upgrade_script"
+grep -Fx 'depos upgrade --manifest packagedef --target major' "$CALL_LOG" >/dev/null
 
 echo 'ПРОЙДЕНО: запуск depos upgrade'

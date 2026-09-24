@@ -1,15 +1,27 @@
 # Depos Action
 
-GitHub Action для автоматического обновления зависимостей пакетов OneScript в файле `packagedef` с помощью [depos](https://github.com/Stivo182/depos). Если найдены обновления, Action создаёт или обновляет Pull Request.
+GitHub Action для автоматического обновления зависимостей OneScript в файле `packagedef` с помощью
+[`depos`](https://github.com/Stivo182/depos). Action обновляет `packagedef` и создаёт или актуализирует
+Pull Request с описанием изменений. Когда обновлений больше нет, управляемый Pull Request автоматически закрывается.
 
-## Использование
+## Возможности
+
+- обновление всех зависимостей или выбранных пакетов по стратегиям `latest`, `minor` и `patch`;
+- создание и повторное использование одного Pull Request;
+- дополнение Pull Request сведениями о релизах и коммитах;
+- автоматическое закрытие управляемого Pull Request, когда обновлений больше нет;
+- отдельная ветка обновлений для каждой базовой ветки и стратегии.
+
+## Быстрый старт
+
+Создайте workflow, например `.github/workflows/update-dependencies.yml`:
 
 ```yaml
 name: Обновление зависимостей
 
 on:
   schedule:
-    - cron: '0 0 * * 1' # Каждый понедельник
+    - cron: '0 0 * * 1'
   workflow_dispatch:
 
 permissions:
@@ -26,36 +38,53 @@ jobs:
           target: minor
 ```
 
-### Входные параметры
+Этот workflow проверяет зависимости каждый понедельник и также может быть запущен вручную.
+
+## Входные параметры
 
 | Параметр | Описание | Значение по умолчанию |
-| --- | --- | --- |
-| `packagedef` | Относительный путь к файлу `packagedef` или содержащему его каталогу. | `packagedef` |
-| `filter` | Фильтр пакетов по именам через запятую или пробел, шаблону (`*`, `?`) или регулярному выражению. | |
-| `target` | Тип целевой версии: `latest`, `minor` или `patch`. | `latest` |
-| `depos-version` | Версия `depos`, устанавливаемая через `opm`. | Версия из [`.depos-version`](.depos-version) |
-| `base` | Базовая ветка Pull Request. | Ветка по умолчанию репозитория |
-| `message-prefix` | Префикс сообщения коммита и заголовка Pull Request. | `build(deps)` |
-| `branch` | Имя ветки Pull Request. | `depos/bump-deps/<target>` для основной ветки; для другой базы добавляется `/<base>` |
-| `labels` | Метки Pull Request, разделённые запятой или переводом строки. | `dependencies` |
-| `token` | Токен для создания и обновления Pull Request. | `GITHUB_TOKEN` |
+|---|---|---|
+| `packagedef` | Относительный путь к файлу `packagedef` или содержащему его каталогу внутри репозитория | `packagedef` |
+| `filter` | Фильтр в формате `depos`: имена пакетов, маска (`*`, `?`) или регулярное выражение | Все пакеты |
+| `target` | Стратегия обновления: `latest`, `minor` или `patch` | `latest` |
+| `depos-version` | Версия `depos`, устанавливаемая через `opm` | Закреплённая версия Action из [`.depos-version`](.depos-version) |
+| `base` | Базовая ветка Pull Request | Ветка репозитория по умолчанию |
+| `message-prefix` | Префикс сообщения коммита и заголовка Pull Request | `build(deps)` |
+| `branch` | Имя ветки Pull Request | Формируется автоматически |
+| `labels` | Метки Pull Request через запятую или перевод строки | `dependencies` |
+| `token` | Токен для GitHub API и Pull Request | `GITHUB_TOKEN` текущего workflow |
 
-## Настройка токена
+Пример обновления только выбранных пакетов до последних patch-версий:
 
-По умолчанию Action использует встроенный `GITHUB_TOKEN`. Для него необходимо:
+```yaml
+- name: Обновление зависимостей
+  uses: Stivo182/depos-action@v1
+  with:
+    filter: autumn, semver
+    target: patch
+```
 
-1. Включить **Settings → Actions → General → Workflow permissions → Allow GitHub Actions to create and approve pull requests**.
-2. Предоставить права в workflow:
+## Права и токен
 
-   ```yaml
-   permissions:
-     contents: write
-     pull-requests: write
-   ```
+По умолчанию используется встроенный `GITHUB_TOKEN`. Разрешите Action изменять содержимое репозитория и
+работать с Pull Request:
 
-События, созданные с помощью `GITHUB_TOKEN`, [не всегда запускают другие workflows](https://docs.github.com/en/actions/concepts/security/github_token). Если workflows создаваемого Pull Request должны выполняться автоматически, передайте Personal Access Token (PAT) или токен GitHub App.
+```yaml
+permissions:
+  contents: write
+  pull-requests: write
+```
 
-Для fine-grained PAT достаточно выбрать целевой репозиторий и предоставить разрешения **Contents: Read and write** и **Pull requests: Read and write**. Для classic PAT требуется scope `repo`. Храните токен в GitHub Actions secret и передавайте его через параметр `token`:
+Также включите создание Pull Request в настройках репозитория:
+**Settings → Actions → General → Workflow permissions → Allow GitHub Actions to create and approve pull requests**.
+
+Для событий `pull_request` типов `opened`, `synchronize` и `reopened`, инициированных с помощью `GITHUB_TOKEN`,
+создаются запуски workflows. Эти запуски ожидают ручного одобрения пользователя с правом записи. Другие типы
+событий `pull_request`, например `edited`, `labeled` и `closed`, запусков не создают.
+Большинство остальных событий, инициированных `GITHUB_TOKEN`, включая `push`, также не запускают новые workflows.
+Если проверки Pull Request должны запускаться без этого ограничения, используйте Personal Access Token или
+токен GitHub App. Другие политики репозитория при этом продолжают действовать. Подробнее — в
+[документации GitHub](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow).
 
 ```yaml
 permissions:
@@ -68,39 +97,50 @@ jobs:
       - name: Обновление зависимостей
         uses: Stivo182/depos-action@v1
         with:
-          target: minor
           token: ${{ secrets.PAT }}
 ```
 
-Не сохраняйте PAT непосредственно в workflow или других файлах репозитория.
+Право `contents: read` предоставляется встроенному `GITHUB_TOKEN` и необходимо для `actions/checkout`.
+Создание ветки и Pull Request выполняется с помощью переданного PAT.
 
-## Поведение
+Для fine-grained PAT нужны разрешения **Contents: Read and write** и
+**Pull requests: Read and write** на целевой репозиторий. Для classic PAT требуется scope `repo`.
+Не сохраняйте токен непосредственно в workflow или других файлах репозитория.
 
-Action обновляет указанный `packagedef` и при наличии изменений создаёт либо обновляет Pull Request. Повторные запуски с одинаковыми `base` и `branch` используют тот же Pull Request.
+## Как работает Action
 
-Для ветки по умолчанию рабочая ветка имеет вид `depos/bump-deps/<target>`. Для другой базовой ветки к имени добавляется `/<base>`, например `depos/bump-deps/minor/develop`.
+1. Определяет базовую ветку и путь к `packagedef`.
+2. Запускает `depos` с выбранными `filter` и `target`.
+3. Если файл изменился, собирает доступные сведения о релизах и коммитах через GitHub API.
+4. Создаёт новый Pull Request либо обновляет ранее созданный для той же пары `base` и `branch`.
+5. Если изменений нет, закрывает ранее созданный им Pull Request и удаляет его служебную ветку.
 
-Если в одном репозитории настроено несколько независимых обновлений с одинаковыми `base` и `target`, задайте каждой конфигурации уникальный параметр `branch`.
+В Pull Request добавляется только выбранный файл `packagedef`; он должен находиться под контролем Git.
 
-Параметр `packagedef` разрешается до конкретного файла. Если указан каталог, используется `<каталог>/packagedef`. Файл должен находиться под контролем Git; в Pull Request добавляются изменения только этого файла.
+Сведения о релизах и коммитах собираются в режиме best effort. Если метаданные отдельной зависимости недоступны,
+описание Pull Request формируется без соответствующих ссылок, release notes или коммитов.
 
-Если обновлений больше нет, Action ищет открытый Pull Request с теми же `base` и `branch`:
+Описание Pull Request содержит:
 
-- Pull Request закрывается, а его ветка удаляется только при наличии в описании служебного маркера `depos-action`.
-- Немаркированный Pull Request и его ветка остаются без изменений.
-- Автоматически выбранная ветка без открытого Pull Request удаляется как оставшийся ресурс Action.
-- Пользовательская ветка из параметра `branch` без управляемого Pull Request остаётся без изменений.
+- сводную таблицу зависимостей с диапазоном версий и типом обновления;
+- ссылку на пакет в OneScript Package Hub;
+- ссылки на Releases и Compare, когда соответствующие данные доступны;
+- release notes версий из обновляемого диапазона;
+- до десяти последних коммитов и ссылку на полное сравнение.
 
-## E2E-тестирование изменений
+## Ветки и повторные запуски
 
-Полный E2E-набор находится в отдельном репозитории [`Stivo182/depos-action-e2e`](https://github.com/Stivo182/depos-action-e2e). Администратор может запустить его для Pull Request комментарием:
+Для основной ветки имя рабочей ветки формируется как `depos/bump-deps/<target>`. Для другой базовой ветки
+добавляется её имя: `depos/bump-deps/<target>/<base>`.
 
-```text
-/test
-```
+Повторные запуски с одинаковыми `base` и `branch` обновляют существующий Pull Request. Если в одном репозитории
+настроено несколько независимых обновлений с одинаковыми `base` и `target`, задайте каждой конфигурации
+уникальное значение `branch`.
 
-Обработчик команды должен находиться в ветке по умолчанию `depos-action`. Настройка, способы запуска и используемые токены описаны в README тестового репозитория.
+Pull Request без служебного маркера `depos-action` автоматически не закрывается. Ветка, явно заданная через
+`branch`, без управляемого Pull Request не удаляется. Автоматически сформированная служебная ветка может быть
+удалена, если соответствующего Pull Request больше нет.
 
 ## Пример Pull Request
 
-![Pull Request Example](examples/assets/pr-example.png)
+![Пример Pull Request, созданного depos-action](examples/assets/pr-example.png)

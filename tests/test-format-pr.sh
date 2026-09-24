@@ -2,16 +2,33 @@
 set -euo pipefail
 
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-format_script="$root_dir/scripts/format-pr.sh"
+format_script="$root_dir/scripts/format-pr.os"
 case_dir="$(mktemp -d)"
 trap 'rm -rf -- "$case_dir"' EXIT
+
+show_diagnostics() {
+  local exit_code="$?"
+
+  echo "Проверка формирования Pull Request завершилась ошибкой на строке ${BASH_LINENO[0]}." >&2
+  if [[ -f "$case_dir/github-output" ]]; then
+    echo 'Содержимое GITHUB_OUTPUT:' >&2
+    cat "$case_dir/github-output" >&2
+  fi
+
+  exit "$exit_code"
+}
+
+trap show_diagnostics ERR
 
 run_format() {
   : > "$case_dir/github-output"
   REPORT="$1" \
     MESSAGE_PREFIX="${2:-}" \
+    DEPOS_PACKAGEDEF='packagedef' \
+    TARGET='latest' \
+    GH_TOKEN='' \
     GITHUB_OUTPUT="$case_dir/github-output" \
-    bash "$format_script"
+    oscript "$format_script"
 }
 
 cat > "$case_dir/report.json" <<'JSON'
@@ -23,9 +40,17 @@ cat > "$case_dir/report.json" <<'JSON'
 JSON
 
 run_format "$case_dir/report.json" 'build(deps)'
-grep -E '^title<<depos_[[:alnum:]_]+$' "$case_dir/github-output" >/dev/null
-grep -Fx 'build(deps): Bump semver 1.0.0 → 1.1.0, autumn 3.0.0 → 3.1.0 and 1 more package' "$case_dir/github-output" >/dev/null
+grep -E $'^title<<depos_[[:alnum:]_]+\r?$' "$case_dir/github-output" >/dev/null
+grep -F 'build(deps): Bump semver 1.0.0 → 1.1.0, autumn 3.0.0 → 3.1.0 and 1 more package' "$case_dir/github-output" >/dev/null
 grep -F '<!-- depos-action: managed pull request -->' "$case_dir/github-output" >/dev/null
+grep -F '| Dependency | Update | Type | Links |' "$case_dir/github-output" >/dev/null
+# Markdown-разметка проверяется как буквальный текст.
+# shellcheck disable=SC2016
+grep -F '| [oint](https://github.com/oscript-library/oint) | `1.0.0` → `2.0.0` | ⚠️ major |' "$case_dir/github-output" >/dev/null
+grep -F '[Hub](https://hub.oscript.io/package/semver)' "$case_dir/github-output" >/dev/null
+# HTML-разметка проверяется как буквальный текст.
+# shellcheck disable=SC2016
+grep -F '<sub>Created automatically by [depos-action](https://github.com/Stivo182/depos-action) · file _packagedef_</sub>' "$case_dir/github-output" >/dev/null
 if grep -F 'body<<EOF' "$case_dir/github-output" >/dev/null; then
   echo 'Для тела Pull Request используется фиксированный разделитель EOF' >&2
   exit 1
