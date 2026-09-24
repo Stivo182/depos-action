@@ -7,9 +7,10 @@ case_dir="$(mktemp -d)"
 trap 'rm -rf -- "$case_dir"' EXIT
 
 show_diagnostics() {
-  local exit_code="$?"
+  local exit_code="$1"
+  local command="$2"
 
-  echo "Проверка формирования Pull Request завершилась ошибкой на строке ${BASH_LINENO[0]}." >&2
+  echo "Проверка формирования Pull Request завершилась ошибкой на строке ${BASH_LINENO[0]}: ${command}" >&2
   if [[ -f "$case_dir/github-output" ]]; then
     echo 'Содержимое GITHUB_OUTPUT:' >&2
     cat "$case_dir/github-output" >&2
@@ -18,7 +19,7 @@ show_diagnostics() {
   exit "$exit_code"
 }
 
-trap show_diagnostics ERR
+trap 'show_diagnostics "$?" "$BASH_COMMAND"' ERR
 
 run_format() {
   : > "$case_dir/github-output"

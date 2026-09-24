@@ -2,6 +2,7 @@
 set -euo pipefail
 
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$root_dir/tests/test-common.sh"
 workflow="$root_dir/.github/workflows/e2e-command.yml"
 
 grep -F 'name: Команда запуска E2E' "$workflow" >/dev/null

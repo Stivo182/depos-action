@@ -2,6 +2,7 @@
 set -euo pipefail
 
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$root_dir/tests/test-common.sh"
 resolve_script="$root_dir/scripts/resolve-packagedef.sh"
 case_dir="$(mktemp -d)"
 trap 'rm -rf -- "$case_dir"' EXIT

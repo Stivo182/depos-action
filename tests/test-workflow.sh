@@ -2,6 +2,7 @@
 set -euo pipefail
 
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$root_dir/tests/test-common.sh"
 workflow="$root_dir/.github/workflows/compatibility.yml"
 action="$root_dir/action.yml"
 upgrade_action="$root_dir/upgrade/action.yml"
@@ -24,7 +25,7 @@ grep -F 'name: Проверка совместимости' "$workflow" >/dev/nu
 grep -F 'name: Статические проверки' "$workflow" >/dev/null
 grep -F 'name: Проверка workflow' "$workflow" >/dev/null
 grep -F 'name: Проверка shell-скриптов' "$workflow" >/dev/null
-grep -A4 -F 'uses: actions/checkout@v6.0.1' "$action" | grep -F 'clean: false' >/dev/null
+grep -A4 -F 'uses: actions/checkout@v7.0.1' "$action" | grep -F 'clean: false' >/dev/null
 grep -F 'scripts/prepare.sh' "$action" >/dev/null
 grep -F 'scripts/format-pr.os' "$action" >/dev/null
 grep -F 'opm install -l' "$action" >/dev/null

@@ -2,6 +2,7 @@
 set -euo pipefail
 
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$root_dir/tests/test-common.sh"
 fake_bin="$root_dir/tests/fakes"
 cleanup_script="$root_dir/scripts/cleanup-pr.sh"
 tests_run=0
