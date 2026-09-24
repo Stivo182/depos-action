@@ -15,3 +15,24 @@ validate_target() {
       ;;
   esac
 }
+
+resolve_command() {
+  local name="$1"
+  local candidate extension
+
+  if candidate=$(command -v "$name" 2>/dev/null); then
+    printf '%s\n' "$candidate"
+    return 0
+  fi
+
+  if [[ "${RUNNER_OS:-}" == "Windows" ]]; then
+    for extension in .bat .cmd .exe; do
+      if candidate=$(command -v "${name}${extension}" 2>/dev/null); then
+        printf '%s\n' "$candidate"
+        return 0
+      fi
+    done
+  fi
+
+  return 1
+}

@@ -10,3 +10,4 @@ bash "$script_dir/test-format-pr.sh"
 bash "$script_dir/test-upgrade.sh"
 bash "$script_dir/test-workflow.sh"
 bash "$script_dir/test-e2e-command.sh"
+oneunit execute -d ./tests/onescript

@@ -82,6 +82,26 @@ Action обновляет указанный `packagedef` и при наличи
 
 Если в одном репозитории настроено несколько независимых обновлений с одинаковыми `base` и `target`, задайте каждой конфигурации уникальный параметр `branch`.
 
+## Локальный предпросмотр Pull Request
+
+Скрипт предпросмотра сам запускает `depos`, загружает метаданные и выводит в консоль заголовок и Markdown-тело будущего PR:
+
+```powershell
+opm install -l
+oscript scripts/preview-pr.os --manifest packagedef --target minor
+```
+
+Доступны параметры `--manifest`, `--filter`, `--target` и `--message-prefix`. Полный список можно получить командой:
+
+```powershell
+oscript scripts/preview-pr.os --help
+```
+
+Без `GH_TOKEN` выводится сокращённый вариант без release notes и коммитов. Для полного предпросмотра передайте токен через переменную среды `GH_TOKEN`.
+
+Исходный manifest не изменяется: `depos` работает с его временной копией. Версия `depos`
+берётся из `.depos-version` и устанавливается самим скриптом через `opm`.
+
 Параметр `packagedef` разрешается до конкретного файла. Если указан каталог, используется `<каталог>/packagedef`. Файл должен находиться под контролем Git; в Pull Request добавляются изменения только этого файла.
 
 Если обновлений больше нет, Action ищет открытый Pull Request с теми же `base` и `branch`:
@@ -103,4 +123,40 @@ Action обновляет указанный `packagedef` и при наличи
 
 ## Пример Pull Request
 
-![Pull Request Example](examples/assets/pr-example.png)
+Заголовок сохраняет прежний компактный формат:
+
+```text
+build(deps): Bump autumn 4.3.10 → 4.3.11, semver 1.0.0 → 1.1.0 and 1 more package
+```
+
+Описание содержит сводную таблицу, а подробности по релизам и коммитам свёрнуты:
+
+| Package | From | To | Update | Links |
+|---|---:|---:|:---:|---|
+| [oint](https://github.com/oscript-library/oint) | `1.0.0` | `2.0.0` | ⚠️ major | [Hub](https://hub.oscript.io/package/oint) · [Repo](https://github.com/oscript-library/oint) |
+| [autumn](https://github.com/oscript-library/autumn) | `4.3.10` | `4.3.11` | patch | [Hub](https://hub.oscript.io/package/autumn) · [Repo](https://github.com/oscript-library/autumn) |
+
+<details>
+<summary>Release notes</summary>
+
+Показываются release notes версий, попавших в диапазон обновления.
+
+</details>
+
+<details>
+<summary>Commits</summary>
+
+Показываются до десяти последних коммитов и ссылка на полный compare view.
+
+</details>
+
+Для каждого пакета Action сначала проверяет `oscript-library/<пакет>`. Если это форк, также рассматриваются
+его `parent` и корневой `source`. Приоритет получает активный репозиторий с нужными тегами и сравнением, затем
+более свежий по `pushed_at`; `source` используется только при полном равенстве. Поэтому поддерживаемый форк может
+остаться источником метаданных, даже если исходный репозиторий заброшен. Поддерживаются теги `1.2.3`, `v1.2.3`
+и `ver1.2.3`.
+
+Получение метаданных через GitHub API выполняется в режиме best effort: ошибка API не мешает обновлению
+`packagedef` и созданию Pull Request. Release notes ограничиваются 50 строками, список коммитов — 10 записями,
+а всё описание — 60 000 символами. Внешний Markdown обезвреживается перед добавлением в Pull Request,
+относительные ссылки разрешаются относительно репозитория пакета.

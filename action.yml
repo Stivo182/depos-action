@@ -119,13 +119,24 @@ runs:
         ACTION_PATH: ${{ github.action_path }}
         MESSAGE_PREFIX: ${{ inputs.message-prefix }}
         REPORT: ${{ env.DEPOS_REPORT_PATH }}
+        GH_TOKEN: ${{ inputs.token }}
+        TARGET: ${{ inputs.target }}
+        DEPOS_PACKAGEDEF: ${{ env.DEPOS_PACKAGEDEF }}
       run: |
         set -euo pipefail
         action_path="$ACTION_PATH"
         if [[ "${RUNNER_OS:-}" == "Windows" ]]; then
           action_path="$(cygpath -u "$action_path")"
         fi
-        bash "$action_path/scripts/format-pr.sh"
+        # shellcheck source=scripts/common.sh
+        source "$action_path/scripts/common.sh"
+        if ! opm_command="$(resolve_command opm)"; then
+          echo "::error title=Не найден opm::otymko/setup-onescript должен установить opm перед форматированием PR."
+          exit 1
+        fi
+        cd "$action_path"
+        "$opm_command" install -l
+        oscript scripts/format-pr.os
 
     - name: Закрытие ранее созданного PR (если изменений нет)
       if: steps.check-changes.outputs.has_changes == 'false'

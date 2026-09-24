@@ -2,7 +2,7 @@
 set -euo pipefail
 
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-format_script="$root_dir/scripts/format-pr.sh"
+format_script="$root_dir/scripts/format-pr.os"
 case_dir="$(mktemp -d)"
 trap 'rm -rf -- "$case_dir"' EXIT
 
@@ -10,8 +10,11 @@ run_format() {
   : > "$case_dir/github-output"
   REPORT="$1" \
     MESSAGE_PREFIX="${2:-}" \
+    DEPOS_PACKAGEDEF='packagedef' \
+    TARGET='latest' \
+    GH_TOKEN='' \
     GITHUB_OUTPUT="$case_dir/github-output" \
-    bash "$format_script"
+    oscript "$format_script"
 }
 
 cat > "$case_dir/report.json" <<'JSON'
@@ -26,6 +29,10 @@ run_format "$case_dir/report.json" 'build(deps)'
 grep -E '^title<<depos_[[:alnum:]_]+$' "$case_dir/github-output" >/dev/null
 grep -Fx 'build(deps): Bump semver 1.0.0 → 1.1.0, autumn 3.0.0 → 3.1.0 and 1 more package' "$case_dir/github-output" >/dev/null
 grep -F '<!-- depos-action: managed pull request -->' "$case_dir/github-output" >/dev/null
+grep -F '| Package | From | To | Update | Links |' "$case_dir/github-output" >/dev/null
+grep -F '| [oint](https://github.com/oscript-library/oint) | `1.0.0` | `2.0.0` | ⚠️ major |' "$case_dir/github-output" >/dev/null
+grep -F '[Hub](https://hub.oscript.io/package/semver)' "$case_dir/github-output" >/dev/null
+grep -F '<sub>Created automatically by depos-action · file `packagedef`</sub>' "$case_dir/github-output" >/dev/null
 if grep -F 'body<<EOF' "$case_dir/github-output" >/dev/null; then
   echo 'Для тела Pull Request используется фиксированный разделитель EOF' >&2
   exit 1
