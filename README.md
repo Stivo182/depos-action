@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Обновление зависимостей
-        uses: Stivo182/depos-action@v1
+        uses: Stivo182/depos-action@v2
         with:
           target: minor
 ```
@@ -58,7 +58,7 @@ jobs:
 
 ```yaml
 - name: Обновление зависимостей
-  uses: Stivo182/depos-action@v1
+  uses: Stivo182/depos-action@v2
   with:
     filter: autumn, semver
     target: patch
@@ -95,7 +95,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Обновление зависимостей
-        uses: Stivo182/depos-action@v1
+        uses: Stivo182/depos-action@v2
         with:
           token: ${{ secrets.PAT }}
 ```

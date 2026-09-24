@@ -1,5 +1,5 @@
 Описание.Имя("depos-action")
-    .Версия("1.1.2")
+    .Версия("2.0.0")
     .Автор("Dmitry Ivanov")
     .АдресАвтора("ivanovdmitry91@gmail.com")
     .АдресРепозитория("https://github.com/Stivo182/depos-action")
