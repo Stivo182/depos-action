@@ -37,6 +37,7 @@ jobs:
       - name: Установка зависимостей тестов
         shell: bash
         run: |
+          opm install opm
           opm install -l --dev
           opm install oneunit
 
