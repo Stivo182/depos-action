@@ -4,6 +4,7 @@
     .АдресАвтора("ivanovdmitry91@gmail.com")
     .АдресРепозитория("https://github.com/Stivo182/depos-action")
     .Описание("GitHub Action для автоматического обновления зависимостей OneScript с помощью depos")
+    .ВерсияСреды("2.2.0")
     .ЗависитОт("semver", "1.1.1")
     .ЗависитОт("1connector", "2.3.3")
     .ЗависитОт("url", "0.2.0")
