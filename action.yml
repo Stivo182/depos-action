@@ -54,7 +54,7 @@ runs:
         bash "$ACTION_PATH/scripts/prepare.sh"
 
     - name: Актуализация
-      uses: actions/checkout@v6.0.1
+      uses: actions/checkout@v7.0.1
       with:
         ref: ${{ env.DEPOS_BASE }}
         persist-credentials: false
