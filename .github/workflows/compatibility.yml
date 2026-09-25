@@ -79,6 +79,11 @@ jobs:
           bash -n scripts/upgrade.sh
           bash -n scripts/cleanup-pr.sh
 
+      - name: Установка OneScript
+        uses: otymko/setup-onescript@v1.5.1
+        with:
+          version: stable
+
       - name: Запуск команды обновления
         uses: ./upgrade
         with:

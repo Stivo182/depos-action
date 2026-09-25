@@ -58,7 +58,10 @@ grep -F 'base: ${{ env.DEPOS_BASE }}' "$action" >/dev/null
 # shellcheck disable=SC2016
 grep -F 'git diff --check "origin/${BASE_REF}...HEAD"' "$workflow" >/dev/null
 grep -F 'uses: ./upgrade' "$workflow" >/dev/null
-grep -F 'uses: otymko/setup-onescript@v1.5.1' "$workflow" >/dev/null
+if [[ "$(grep -Fc 'uses: otymko/setup-onescript@v1.5.1' "$workflow")" -ne 2 ]]; then
+  echo 'OneScript должен устанавливаться перед прямым вызовом upgrade Action' >&2
+  exit 1
+fi
 grep -F 'opm install -l --dev' "$workflow" >/dev/null
 grep -F 'opm install oneunit' "$workflow" >/dev/null
 grep -F 'oneunit execute -d ./tests/onescript' "$root_dir/tests/run.sh" >/dev/null
