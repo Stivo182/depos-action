@@ -4,18 +4,18 @@ author: Stivo182
 
 inputs:
   packagedef:
-    description: Путь к файлу packagedef или его каталогу.
+    description: Относительный путь к файлу packagedef или к каталогу, содержащему его
     required: false
     default: packagedef
   filter:
-    description: Фильтр пакетов по именам (через запятую или пробел), шаблону (*, ?) или регулярному выражению.
+    description: Фильтр пакетов по именам (через запятую или пробел), шаблону (*, ?) или регулярному выражению
     required: false
   target:
-    description: Тип целевой версии (latest, minor, patch).
+    description: Тип целевой версии (latest, minor, patch)
     required: false
     default: latest
   depos-version:
-    description: Версия depos для установки через opm. Если не указана, используется закреплённая версия Action.
+    description: Версия depos для установки через opm. Если не указана, используется закреплённая версия Action
     required: false
   output:
     description: Путь для сохранения JSON-отчёта об обновлениях.
@@ -24,11 +24,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Установка OneScript
-      uses: otymko/setup-onescript@v1.5.1
-      with:
-        version: stable
-
     - name: Обновление зависимостей в packagedef
       shell: bash
       env:

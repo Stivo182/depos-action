@@ -26,5 +26,4 @@ jobs:
         with:
           filter: ${{ inputs.filter }}
           target: ${{ inputs.target }}
-          message-prefix: build(deps)
           token: ${{ secrets.PAT }}
