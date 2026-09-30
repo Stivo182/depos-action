@@ -36,7 +36,7 @@ runs:
 
     - name: Установка пакета depos
       shell: bash
-      run: opm install depos
+      run: opm install depos@0.6.0
 
     - name: Обновление зависимостей в packagedef
       shell: bash
