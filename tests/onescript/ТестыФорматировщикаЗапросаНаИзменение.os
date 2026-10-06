@@ -38,11 +38,11 @@
         |
         |%7",
         "https://github.com/oscript-library/oint",
-        "https://hub.oscript.io/package/oint",
+        "https://hub.oscript.io/pools/default/packages/oint",
         "https://github.com/oscript-library/autumn",
-        "https://hub.oscript.io/package/autumn",
+        "https://hub.oscript.io/pools/default/packages/autumn",
         "https://github.com/oscript-library/semver",
-        "https://hub.oscript.io/package/semver",
+        "https://hub.oscript.io/pools/default/packages/semver",
         ОжидаемыйПодвал
     );
     Утверждения.ПроверитьРавенство(ОжидаемоеТело, Результат.Тело);
@@ -88,7 +88,7 @@
 
     // Проверка
     Ожидаем.Что(Результат.Тело).Содержит(
-        "[Hub](https://hub.oscript.io/package/autumn)"
+        "[Hub](https://hub.oscript.io/pools/default/packages/autumn)"
             + " · [Releases](https://github.com/oscript-library/autumn/releases)"
             + " · [Compare](https://github.com/oscript-library/autumn/compare/v4.3.10...v4.3.11)"
     );
@@ -451,7 +451,7 @@
         После,
         Тип,
         СтрШаблон("https://github.com/oscript-library/%1", Имя),
-        СтрШаблон("https://hub.oscript.io/package/%1", Имя),
+        СтрШаблон("https://hub.oscript.io/pools/default/packages/%1", Имя),
         Новый Массив,
         Новый Массив,
         ""

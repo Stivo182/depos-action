@@ -48,7 +48,7 @@ grep -F '| Dependency | Update | Type | Links |' "$case_dir/github-output" >/dev
 # Markdown-разметка проверяется как буквальный текст.
 # shellcheck disable=SC2016
 grep -F '| [oint](https://github.com/oscript-library/oint) | `1.0.0` → `2.0.0` | ⚠️ major |' "$case_dir/github-output" >/dev/null
-grep -F '[Hub](https://hub.oscript.io/package/semver)' "$case_dir/github-output" >/dev/null
+grep -F '[Hub](https://hub.oscript.io/pools/default/packages/semver)' "$case_dir/github-output" >/dev/null
 # HTML-разметка проверяется как буквальный текст.
 # shellcheck disable=SC2016
 grep -F '<sub>Created automatically by [depos-action](https://github.com/Stivo182/depos-action) · file _packagedef_</sub>' "$case_dir/github-output" >/dev/null

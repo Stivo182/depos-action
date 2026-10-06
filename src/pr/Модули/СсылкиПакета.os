@@ -11,7 +11,7 @@
 
     Возврат Новый Структура(
         "URLHub,URLРепозитория",
-        "https://hub.oscript.io/package/" + ИмяПакета,
+        "https://hub.oscript.io/pools/default/packages/" + ИмяПакета,
         "https://github.com/oscript-library/" + ИмяПакета
     );
 
