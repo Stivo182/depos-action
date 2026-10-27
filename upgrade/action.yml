@@ -14,9 +14,13 @@ inputs:
     description: Тип целевой версии (latest, minor, patch)
     required: false
     default: latest
-  depos-version:
-    description: Версия depos для установки через opm. Если не указана, используется закреплённая версия Action
+  engine:
+    description: Целевая версия OneScript для совместимых обновлений (auto, current или номер версии)
     required: false
+  depos-version:
+    description: Версия depos для установки через opm
+    required: false
+    default: 0.8.0
   output:
     description: Путь для сохранения JSON-отчёта об обновлениях.
     required: false
@@ -24,15 +28,29 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Установка зависимостей (Unix)
+      if: runner.os != 'Windows'
+      shell: bash
+      run: |
+        cd "$GITHUB_ACTION_PATH/.."
+        opm install opm
+        opm install -l
+
+    - name: Установка зависимостей (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        Set-Location -LiteralPath (Split-Path -Parent $env:GITHUB_ACTION_PATH)
+        opm install opm
+        opm install -l
+
     - name: Обновление зависимостей в packagedef
       shell: bash
       env:
-        ACTION_PATH: ${{ github.action_path }}
-        PACKAGEDEF: ${{ inputs.packagedef }}
-        FILTER: ${{ inputs.filter }}
-        TARGET: ${{ inputs.target }}
+        DEPOS_PACKAGEDEF: ${{ inputs.packagedef }}
+        DEPOS_FILTER: ${{ inputs.filter }}
+        DEPOS_TARGET: ${{ inputs.target }}
+        DEPOS_ENGINE: ${{ inputs.engine }}
         DEPOS_VERSION: ${{ inputs.depos-version }}
-        OUTPUT: ${{ inputs.output }}
-      run: |
-        set -euo pipefail
-        bash "$ACTION_PATH/../scripts/upgrade.sh"
+        DEPOS_REPORT_PATH: ${{ inputs.output }}
+      run: oscript "$GITHUB_ACTION_PATH/../src/depos-action.os" upgrade
