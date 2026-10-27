@@ -14,9 +14,13 @@ inputs:
     description: Тип целевой версии (latest, minor, patch)
     required: false
     default: latest
-  depos-version:
-    description: Версия depos для установки через opm. Если не указана, используется закреплённая версия Action
+  engine:
+    description: Целевая версия OneScript для совместимых обновлений (auto, current или номер версии)
     required: false
+  depos-version:
+    description: Версия depos для установки через opm
+    required: false
+    default: 0.8.0
   base:
     description: Базовая ветка Pull Request. Если не указана, используется ветка по умолчанию репозитория
     required: false
@@ -39,19 +43,37 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Установка OneScript
+      uses: otymko/setup-onescript@v1.5.1
+      with:
+        version: stable
+
+    - name: Установка зависимостей (Unix)
+      if: runner.os != 'Windows'
+      shell: bash
+      run: |
+        cd "$GITHUB_ACTION_PATH"
+        opm install opm
+        opm install -l
+
+    - name: Установка зависимостей (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        Set-Location -LiteralPath $env:GITHUB_ACTION_PATH
+        opm install opm
+        opm install -l
+
     - name: Проверка входных параметров
       shell: bash
       env:
-        ACTION_PATH: ${{ github.action_path }}
-        TARGET: ${{ inputs.target }}
-        PACKAGEDEF: ${{ inputs.packagedef }}
-        BRANCH: ${{ inputs.branch }}
-        BASE: ${{ inputs.base }}
-        DEFAULT_BASE: ${{ github.event.repository.default_branch }}
-        CURRENT_REF: ${{ github.ref_name }}
-      run: |
-        set -euo pipefail
-        bash "$ACTION_PATH/scripts/prepare.sh"
+        DEPOS_TARGET: ${{ inputs.target }}
+        DEPOS_PACKAGEDEF: ${{ inputs.packagedef }}
+        DEPOS_BRANCH: ${{ inputs.branch }}
+        DEPOS_BASE: ${{ inputs.base }}
+        DEPOS_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        DEPOS_TRIGGER_REF_NAME: ${{ github.ref_name }}
+      run: oscript "$GITHUB_ACTION_PATH/src/depos-action.os" prepare
 
     - name: Актуализация
       uses: actions/checkout@v7.0.1
@@ -60,40 +82,29 @@ runs:
         persist-credentials: false
         clean: false
 
-    - name: Установка OneScript
-      uses: otymko/setup-onescript@v1.5.1
-      with:
-        version: stable
-
     - name: Определение файла packagedef
       shell: bash
-      env:
-        ACTION_PATH: ${{ github.action_path }}
-        PACKAGEDEF: ${{ env.DEPOS_PACKAGEDEF }}
-      run: |
-        set -euo pipefail
-        bash "$ACTION_PATH/scripts/resolve-packagedef.sh"
+      run: oscript "$GITHUB_ACTION_PATH/src/depos-action.os" resolve-packagedef
 
     - name: Обновление зависимостей в packagedef
       shell: bash
       env:
-        ACTION_PATH: ${{ github.action_path }}
-        PACKAGEDEF: ${{ env.DEPOS_PACKAGEDEF }}
-        FILTER: ${{ inputs.filter }}
-        TARGET: ${{ inputs.target }}
+        DEPOS_FILTER: ${{ inputs.filter }}
+        DEPOS_TARGET: ${{ inputs.target }}
+        DEPOS_ENGINE: ${{ inputs.engine }}
         DEPOS_VERSION: ${{ inputs.depos-version }}
-        OUTPUT: ${{ env.DEPOS_REPORT_PATH }}
-      run: |
-        set -euo pipefail
-        bash "$ACTION_PATH/scripts/upgrade.sh"
+      run: oscript "$GITHUB_ACTION_PATH/src/depos-action.os" upgrade
 
     - name: Проверка наличия изменений
       id: check-changes
       shell: bash
       run: |
-        set -euo pipefail
-
-        if [[ -n "$(git status --porcelain -- "$DEPOS_PACKAGEDEF")" ]]; then
+        set -u
+        if ! changes="$(git status --porcelain -- "$DEPOS_PACKAGEDEF")"; then
+          echo "::error title=Ошибка проверки изменений::Не удалось получить состояние packagedef." >&2
+          exit 1
+        fi
+        if [[ -n "$changes" ]]; then
           echo "has_changes=true" >> "$GITHUB_OUTPUT"
         else
           echo "has_changes=false" >> "$GITHUB_OUTPUT"
@@ -104,17 +115,11 @@ runs:
       id: format-output
       shell: bash
       env:
-        ACTION_PATH: ${{ github.action_path }}
-        MESSAGE_PREFIX: ${{ inputs.message-prefix }}
-        REPORT: ${{ env.DEPOS_REPORT_PATH }}
+        DEPOS_MESSAGE_PREFIX: ${{ inputs.message-prefix }}
         GH_TOKEN: ${{ inputs.token }}
-        TARGET: ${{ inputs.target }}
-        DEPOS_PACKAGEDEF: ${{ env.DEPOS_PACKAGEDEF }}
-      run: |
-        set -euo pipefail
-        cd "$ACTION_PATH"
-        opm install -l
-        oscript scripts/format-pr.os
+        DEPOS_TARGET: ${{ inputs.target }}
+        DEPOS_ENGINE: ${{ inputs.engine }}
+      run: oscript "$GITHUB_ACTION_PATH/src/depos-action.os" format-pr
 
     - name: Закрытие ранее созданного PR (если изменений нет)
       if: steps.check-changes.outputs.has_changes == 'false'
@@ -122,10 +127,15 @@ runs:
       env:
         GH_TOKEN: ${{ inputs.token }}
         GH_REPO: ${{ github.repository }}
-        ACTION_PATH: ${{ github.action_path }}
-      run: |
-        set -euo pipefail
-        bash "$ACTION_PATH/scripts/cleanup-pr.sh"
+      run: oscript "$GITHUB_ACTION_PATH/src/depos-action.os" cleanup-pr
+
+    - name: Проверка ветки Pull Request
+      if: steps.check-changes.outputs.has_changes == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        GH_REPO: ${{ github.repository }}
+      run: oscript "$GITHUB_ACTION_PATH/src/depos-action.os" check-branch
 
     - name: Создание Pull Request
       if: steps.check-changes.outputs.has_changes == 'true'

@@ -13,6 +13,13 @@ on:
           - latest
           - minor
           - patch
+      engine:
+        description: Режим выбора версии OneScript
+        default: auto
+        type: choice
+        options:
+          - auto
+          - current
 
 permissions:
   contents: read
@@ -27,13 +34,14 @@ jobs:
       - name: Установка OneScript
         uses: otymko/setup-onescript@v1.5.1
         with:
-          version: stable 
+          version: stable
 
       - name: Обновление зависимостей в packagedef
         uses: Stivo182/depos-action/upgrade@v2
         with:
           filter: ${{ inputs.filter }}
           target: ${{ inputs.target }}
+          engine: ${{ inputs.engine }}
           output: report.json
 
         # 1. Обновлен файл packagedef

@@ -13,6 +13,13 @@ on:
           - latest
           - minor
           - patch
+      engine:
+        description: Режим выбора версии OneScript
+        default: auto
+        type: choice
+        options:
+          - auto
+          - current
 
 permissions:
   contents: read
@@ -26,4 +33,5 @@ jobs:
         with:
           filter: ${{ inputs.filter }}
           target: ${{ inputs.target }}
+          engine: ${{ inputs.engine }}
           token: ${{ secrets.PAT }}
