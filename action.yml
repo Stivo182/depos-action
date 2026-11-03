@@ -29,7 +29,9 @@ inputs:
     required: false
     default: build(deps)
   branch:
-    description: Имя ветки Pull Request. Для основной базы используется depos/bump-deps/<target>, для другой базы добавляется /<base>
+    description: >-
+      Имя ветки Pull Request. Для основной базы используется depos/bump-deps/<target>,
+      для другой - depos/bump-deps/base/<base>/<target>
     required: false
   labels:
     description: Метки Pull Request, разделённые запятой или переводом строки
